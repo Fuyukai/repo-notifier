@@ -50,6 +50,7 @@ def webhook(request: Request) -> Response:
     try:
         event_handler = globals()[f"handle_{event.replace(' ', '_')}"]
     except KeyError:
+        logger.info(f"Got unknown event {event}")
         return Response(f"Invalid event '{event}'", 400)
 
     # call the event handler
@@ -273,7 +274,6 @@ def _handle_failed_pipeline(body: dict):
 
     # build the URL (project URL + pipelines + id)
     title_link = body["project"]["web_url"] + f"/pipelines/{pipeline_properites['id']}"
-    print(title_link)
     title = f"Pipeline for {repo_name}"
 
     lines = ["Pipeline failed: "]
@@ -300,6 +300,45 @@ def _handle_failed_pipeline(body: dict):
     slack.chat.post_message(report_channel,
                             as_user=True,
                             attachments=[attachment])
+
+
+def handle_tag_push(request: Request):
+    """
+    Handles a tag push.
+    """
+    body = request.json
+    repo_name = body["project"]["path_with_namespace"]
+
+    # check if it's a branch (head) or a tag
+    ref = body['ref']
+    if ref.split("/")[1] == "heads":
+        word = "branch"
+    else:
+        word = "tag"
+
+    title = f"{body['user_name']} created {word} {body['ref'].split('/')[-1]} on {repo_name}"
+    title_link = body["project"]["web_url"]
+
+    # build the sha URL
+    sha_url = title_link + f"/commit/{body['checkout_sha']}"
+    text = f"Points to `<{sha_url}|{body['checkout_sha']}>`"
+
+    attachment = {
+        "title": title,
+        "title_link": title_link,
+        "text": text,
+
+        "ts": time.time(),
+
+        "mrkdwn_in": ["text"],
+
+        "author_name": body["user_name"],
+        "author_icon": body["user_avatar"],
+
+        "color": "#26a69a"
+    }
+
+    slack.chat.post_message(report_channel, as_user=True, attachments=[attachment])
 
 
 if __name__ == '__main__':
