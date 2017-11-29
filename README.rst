@@ -1,7 +1,7 @@
 Slack Repository Notifications
 ==============================
 
-`Homepage<https://gitlab.com/Fuyukai/repo-notifier>`_
+Homepage_
 
 This is a simple bot that receives incoming webhook data from GitLab and passes it to GitHub.
 
@@ -21,3 +21,4 @@ Optionally, you can provide a channel name as the second argument, otherwise it 
 ``repo-report``.
 
 .. _Pipenv: https://docs.pipenv.org/
+.. _Homepage: https://gitlab.com/Fuyukai/repo-notifier
