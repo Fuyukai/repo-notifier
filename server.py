@@ -83,8 +83,7 @@ def handle_push(request: Request):
 
     for commit in body["commits"]:
         message = commit['message'].split("\n")[0]
-        fmtted = f"`<{commit['url']}|{commit['id'][0:6]}>` {message} " \
-                 f"[{commit['author']['name']}]"
+        fmtted = f"`<{commit['url']}|{commit['id'][0:6]}>` {message}"
         lines.append(fmtted)
 
         added.update(set(commit["added"]))
